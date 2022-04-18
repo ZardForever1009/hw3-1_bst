@@ -1,1 +1,1 @@
-# hw3-1_bst
+# HW3 Binary Search Tree implementation
