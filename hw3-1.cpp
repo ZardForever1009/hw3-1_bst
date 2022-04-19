@@ -112,17 +112,37 @@ void Delete(Node*& root, string data){
 			// delete operation
 			// NO CHILD
 			if(root->left==nullptr&&root->right==nullptr){
+				root->data=-1;
 				root=nullptr;
 			}
 			// TWO CHILD
 			// replace with right child desuccessor
 			else if(root->left!=nullptr&&root->right!=nullptr){
-				
+				// find desccessor
+				Node* min=root->right;
+				while(min->left!=nullptr)min=min->left;
+				// delete 
+				int tmp=min->data;
+				Delete(min, to_string(min->data));
+				root->data=tmp;
 			}
 			// ONE CHILD
 			else{
-				
-
+				// LEFT child not nullptr
+				if(root->left!=nullptr){
+					root->data=root->left->data;
+					root->left=root->left->left;
+					root->right=root->left->right;
+					root->left=nullptr;
+					delete root->left;
+				}
+				else{
+					root->data=root->right->data;
+					root->left=root->right->left;
+					root->right=root->right->right;
+					root->right=nullptr;
+					delete root->right;
+				}
 			}
 			root=restore_root;
 			return;
@@ -188,6 +208,7 @@ void bst(){
 		else{
 			cout<<"Wrong instruction"<<endl;
 		}
+		cout<<root->data<<endl;
 	}
 	return;
 }
