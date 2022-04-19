@@ -27,21 +27,13 @@ bool invalid_data(string data){
 	else return false;
 }
 
-// Search function (TRUE: exist)
-bool Search(Node* root, string data){
-	// prevent invalid search options
-	if(invalid_data(data)){
-		cout<<"Search wrong data\n";
-		return false;
-	}
+// exist function (TRUE: exist)
+bool node_exist(Node* root, string data){
 	if(root==nullptr)return false; // impossible for data to store in the bst
 	// start searching
 	if(root->data==stoi(data))return true;
-	else{
-		if(root->left!=nullptr)Search(root->left, data);
-		if(root->right!=nullptr)Search(root->right, data);
-	}
-	return false;
+	if(root->data<stoi(data))return node_exist(root->right, data);
+	if(root->data>stoi(data))return node_exist(root->left, data);
 }
 
 // insert function
@@ -58,7 +50,7 @@ void Insert(Node*& root, string data){
 		return;
 	}
 	// root is NOT nullptr && same data already exist
-	else if(Search(root, data)){
+	if(node_exist(root, data)){
 		cout<<"This data is in BST\n";
 		return;
 	}
@@ -96,8 +88,50 @@ void Insert(Node*& root, string data){
 }
 
 // delete function
-void Delete(Node*& root, string data){
-	
+void Delete(Node*& root, string data){ 
+	// prevent invalid insert options
+	if(invalid_data(data)){
+		cout<<"Delete wrong data\n";
+		return;
+	}
+	// root is nullptr
+	if(root==nullptr){
+		cout<<"BST is empty\n";
+		return;
+	}
+	// root is NOT nullptr && data not exist
+	if(!node_exist(root, data)){
+		cout<<"This data is not in BST\n";
+		return;
+	}
+	// root is NOT nullptr && data exist in bst
+	// delete node
+	else{
+		Node* restore_root=root;
+		if(stoi(data)==root->data){
+			// delete operation
+			// NO CHILD
+			if(root->left==nullptr&&root->right==nullptr){
+				root=nullptr;
+			}
+			// TWO CHILD
+			// replace with right child desuccessor
+			else if(root->left!=nullptr&&root->right!=nullptr){
+				
+			}
+			// ONE CHILD
+			else{
+				
+
+			}
+			root=restore_root;
+			return;
+		}
+		// keep searching delete node
+		if(stoi(data)>root->data)Delete(root->right, data); // Search right 
+		if(stoi(data)<root->data)Delete(root->left, data); // Search left
+	}
+	return;
 }
 
 // height of tree
@@ -107,6 +141,11 @@ int Height(Node* root){
 
 // print out tree by level order
 void Print(Node* root){
+	
+}
+
+// search given data
+int Search(Node* root, string data){
 	
 }
 
@@ -141,7 +180,7 @@ void bst(){
 		}
 		else if(action=="Search"){
 			cin>>data;
-			Search(root, data);
+			cout<<Search(root, data)<<endl;
 		}
 		else if(action=="Number"){
 			cout<<Number(root)<<endl;
@@ -155,6 +194,16 @@ void bst(){
 
 int main(){
 	
+	/* Node* root=new Node();
+	Node* tmp=new Node();
+	root->data=25;
+	tmp->data=50;
+	root->right=tmp;
+	cout<<root->right->data<<"/"<<tmp->data<<endl;
+	Node* nn=tmp;
+	delete tmp;
+	tmp=nullptr;
+	cout<<root->right->data<<"/"<<tmp->data<<endl; */
 	bst();
 	
 	system("pause");
