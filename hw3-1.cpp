@@ -112,7 +112,7 @@ void Delete(Node*& root, string data){
 			// delete operation
 			// NO CHILD
 			if(root->left==nullptr&&root->right==nullptr){
-				root->data=-1;
+				delete root;
 				root=nullptr;
 			}
 			// TWO CHILD
@@ -130,16 +130,12 @@ void Delete(Node*& root, string data){
 			else{
 				// LEFT child not nullptr
 				if(root->left!=nullptr){
-					root->data=root->left->data;
-					root->left=root->left->left;
-					root->right=root->left->right;
+					root=root->left;
 					root->left=nullptr;
 					delete root->left;
 				}
 				else{
-					root->data=root->right->data;
-					root->left=root->right->left;
-					root->right=root->right->right;
+					root=root->right;
 					root->right=nullptr;
 					delete root->right;
 				}
@@ -154,14 +150,44 @@ void Delete(Node*& root, string data){
 	return;
 }
 
+// print out specific level of data OR check how many level exist
+bool print_level(Node* root, int level, bool print_or_not){
+    if (root == nullptr) {
+        return false;
+    }
+    if (level==1&&print_or_not){
+        cout << root->data << " ";
+        return true;
+    }
+	if(level==1&&!print_or_not)return true;
+    bool left = print_level(root->left, level-1, print_or_not);
+    bool right = print_level(root->right, level-1, print_or_not);
+    return left||right; // still exist node not print
+}
+ 
 // height of tree
 int Height(Node* root){
-	
+	if(root==nullptr)return 0;
+	int level=1;
+	while (print_level(root, level, false)) {
+        level++;
+    }
+	return level-1;
 }
 
-// print out tree by level order
+// Function to print level order traversal of a given binary tree
 void Print(Node* root){
-	
+    // empty tree
+	if(root==nullptr){
+		cout<<"Empty tree";
+		return;
+	}
+    int level = 1;
+    // run till printLevel() returns false
+    while (print_level(root, level, true)) {
+        level++;
+    }
+	return;
 }
 
 // search given data
@@ -193,10 +219,11 @@ void bst(){
 			Delete(root, data);
 		}
 		else if(action=="Height"){
-			Height(root);
+			cout<<Height(root)<<endl;
 		}
 		else if(action=="Print"){
 			Print(root);
+			cout<<endl;
 		}
 		else if(action=="Search"){
 			cin>>data;
@@ -208,23 +235,12 @@ void bst(){
 		else{
 			cout<<"Wrong instruction"<<endl;
 		}
-		cout<<root->data<<endl;
 	}
 	return;
 }
 
 int main(){
 	
-	/* Node* root=new Node();
-	Node* tmp=new Node();
-	root->data=25;
-	tmp->data=50;
-	root->right=tmp;
-	cout<<root->right->data<<"/"<<tmp->data<<endl;
-	Node* nn=tmp;
-	delete tmp;
-	tmp=nullptr;
-	cout<<root->right->data<<"/"<<tmp->data<<endl; */
 	bst();
 	
 	system("pause");
