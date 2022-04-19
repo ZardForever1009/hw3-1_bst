@@ -7,8 +7,6 @@
 
 using namespace std;
 
-static int node_count=0;
-
 // tree node initializtion
 class Node{
 public:
@@ -114,11 +112,12 @@ void Print(Node* root){
 
 // Number function
 int Number(Node* root){
-	node_count++;
+	int count=0;
 	if(root==nullptr)return 0;
-	if(root->left!=nullptr)Number(root->left);
-	if(root->right!=nullptr)Number(root->right);
-	return node_count;
+	count++;
+	count+=Number(root->left);
+	count+=Number(root->right);
+	return count;
 }
 
 // combination of all instructions
