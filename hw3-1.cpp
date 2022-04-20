@@ -87,6 +87,21 @@ void Insert(Node*& root, string data){
 	return;
 }
 
+// search for the delete node & its parent
+void search_node(Node*& curr, int data, Node*& parent){
+    // traverse the tree and search for the data
+    while(curr!=nullptr&&curr->data!=data){
+        // update the parent to the current node
+        parent=curr;
+        if (data<curr->data){
+            curr=curr->left;
+        }
+        else{
+            curr=curr->right;
+        }
+    }
+}
+
 // delete function
 void Delete(Node*& root, string data){ 
 	// prevent invalid insert options
@@ -107,52 +122,64 @@ void Delete(Node*& root, string data){
 	// root is NOT nullptr && data exist in bst
 	// delete node
 	else{
-		Node* restore_root=root;
-		if(stoi(data)==root->data){
-			// delete operation
-			// NO CHILD
-			if(root->left==nullptr&&root->right==nullptr){
-				delete root;
+		Node* parent = nullptr;
+		Node* curr = root;
+		// search data in the BST and set its parent pointer
+		search_node(curr, stoi(data), parent);
+		// Case 1: del_node has NO children
+		if(curr->left==nullptr&&curr->right==nullptr){
+			if(curr!=root){ // del_node is NOT root
+				if (parent->left==curr){
+					parent->left=nullptr;
+				}
+				else {
+					parent->right = nullptr;
+				}
+			}
+			// Only one node
+			else{
 				root=nullptr;
 			}
-			// TWO CHILD
-			// replace with right child desuccessor
-			else if(root->left!=nullptr&&root->right!=nullptr){
-				// find desccessor
-				Node* min=root->right;
-				while(min->left!=nullptr)min=min->left;
-				// delete 
-				int tmp=min->data;
-				Delete(min, to_string(min->data));
-				root->data=tmp;
-			}
-			// ONE CHILD
-			else{
-				// LEFT child not nullptr
-				if(root->left!=nullptr){
-					root=root->left;
-					root->left=nullptr;
-					delete root->left;
+			delete curr;
+		}
+		// Case 2: Two children of del_node
+		else if (curr->left&&curr->right){
+			// find its inorder successor node
+			Node* successor=curr->right;
+			while(successor->left!=nullptr)successor=successor->left;
+			// store successor value
+			int val = successor->data;
+			Delete(root, to_string(successor->data));
+			// copy value of the successor to the current node
+			curr->data=val;
+		}
+		// Case 3: Only one child of del_node
+		else{
+			// choose the exist child node
+			Node* child;
+			if(curr->left)child=curr->left;
+			else child=curr->right;
+			// curr NOT root, so set child to parent
+			if (curr!=root){
+				if(curr==parent->left){
+					parent->left=child;
 				}
 				else{
-					root=root->right;
-					root->right=nullptr;
-					delete root->right;
+					parent->right=child;
 				}
 			}
-			root=restore_root;
-			return;
+			// del_node is root, child become root
+			else{
+				root=child;
+			}
+			delete curr;
 		}
-		// keep searching delete node
-		if(stoi(data)>root->data)Delete(root->right, data); // Search right 
-		if(stoi(data)<root->data)Delete(root->left, data); // Search left
 	}
-	return;
 }
 
 // print out specific level of data OR check how many level exist
-bool print_level(Node* root, int level, bool print_or_not){
-    if (root == nullptr) {
+bool level_traversal(Node* root, int level, bool print_or_not){
+    if (root==nullptr) {
         return false;
     }
     if (level==1&&print_or_not){
@@ -160,8 +187,8 @@ bool print_level(Node* root, int level, bool print_or_not){
         return true;
     }
 	if(level==1&&!print_or_not)return true;
-    bool left = print_level(root->left, level-1, print_or_not);
-    bool right = print_level(root->right, level-1, print_or_not);
+    bool left = level_traversal(root->left, level-1, print_or_not);
+    bool right = level_traversal(root->right, level-1, print_or_not);
     return left||right; // still exist node not print
 }
  
@@ -169,7 +196,7 @@ bool print_level(Node* root, int level, bool print_or_not){
 int Height(Node* root){
 	if(root==nullptr)return 0;
 	int level=1;
-	while (print_level(root, level, false)) {
+	while (level_traversal(root, level, false)) {
         level++;
     }
 	return level-1;
@@ -184,7 +211,7 @@ void Print(Node* root){
 	}
     int level = 1;
     // run till printLevel() returns false
-    while (print_level(root, level, true)) {
+    while (level_traversal(root, level, true)) {
         level++;
     }
 	return;
@@ -192,6 +219,20 @@ void Print(Node* root){
 
 // search given data
 int Search(Node* root, string data){
+	if(invalid_data(data)){
+		cout<<"Search wrong data\n";
+		return -1;
+	}
+	// root is nullptr
+	if(root==nullptr){
+		cout<<"BST is empty\n";
+		return -1;
+	}
+	// root is NOT nullptr && data not exist
+	if(!node_exist(root, data)){
+		cout<<"This data is not in BST\n";
+		return -1;
+	}
 	
 }
 
@@ -227,7 +268,8 @@ void bst(){
 		}
 		else if(action=="Search"){
 			cin>>data;
-			cout<<Search(root, data)<<endl;
+			int result=Search(root, data);
+			if(result!=-1)cout<<result<<endl;
 		}
 		else if(action=="Number"){
 			cout<<Number(root)<<endl;
