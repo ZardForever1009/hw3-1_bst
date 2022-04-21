@@ -36,6 +36,57 @@ bool node_exist(Node* root, string data){
 	if(root->data>stoi(data))return node_exist(root->left, data);
 }
 
+// print out specific level of data OR check how many level exist
+// for: Print() & Height() function purpose
+bool level_traversal(Node* root, int level, bool print){
+    if (root==nullptr){
+        return false;
+    }
+    if (level==1&&print){
+        cout << root->data << " ";
+        return true;
+    }
+	if(level==1&&!print){
+		return true;
+	}
+    bool left=level_traversal(root->left, level-1, print);
+    bool right=level_traversal(root->right, level-1, print);
+    return left||right; // still exist node not print
+}
+
+// search by level & store data at string
+// for: Search function purpose
+bool level_search(Node* root, int level, string& result, string data){
+    if (root==nullptr){
+		result+='-';
+        return false;
+    }
+    if (level==1){
+		if(stoi(data)==root->data)result+='#';
+		else result+='-';
+        return true;
+    }
+    bool left=level_search(root->left, level-1, result, data);
+    bool right=level_search(root->right, level-1, result, data);
+    return left||right; // still exist node not print
+}
+
+// search for the delete node & its parent
+void search_node(Node*& curr, int data, Node*& parent){
+    // traverse the tree and search for the data
+    while(curr!=nullptr&&curr->data!=data){
+        // update the parent to the current node
+        parent=curr;
+        if (data<curr->data){
+            curr=curr->left;
+        }
+        else{
+            curr=curr->right;
+        }
+    }
+}
+
+/*-----------------MAIN WORKING FUNCTION BELOW---------------------------*/
 // insert function
 void Insert(Node*& root, string data){
 	// prevent invalid insert options
@@ -85,21 +136,6 @@ void Insert(Node*& root, string data){
 		root=restore_root;
 	}
 	return;
-}
-
-// search for the delete node & its parent
-void search_node(Node*& curr, int data, Node*& parent){
-    // traverse the tree and search for the data
-    while(curr!=nullptr&&curr->data!=data){
-        // update the parent to the current node
-        parent=curr;
-        if (data<curr->data){
-            curr=curr->left;
-        }
-        else{
-            curr=curr->right;
-        }
-    }
 }
 
 // delete function
@@ -176,26 +212,11 @@ void Delete(Node*& root, string data){
 		}
 	}
 }
-
-// print out specific level of data OR check how many level exist
-bool level_traversal(Node* root, int level, bool print_or_not){
-    if (root==nullptr) {
-        return false;
-    }
-    if (level==1&&print_or_not){
-        cout << root->data << " ";
-        return true;
-    }
-	if(level==1&&!print_or_not)return true;
-    bool left = level_traversal(root->left, level-1, print_or_not);
-    bool right = level_traversal(root->right, level-1, print_or_not);
-    return left||right; // still exist node not print
-}
  
 // height of tree
 int Height(Node* root){
 	if(root==nullptr)return 0;
-	int level=1;
+	int level=1; 
 	while (level_traversal(root, level, false)) {
         level++;
     }
@@ -233,7 +254,20 @@ int Search(Node* root, string data){
 		cout<<"This data is not in BST\n";
 		return -1;
 	}
-	
+	else{
+		string result="";
+		int level=1, idx=0;
+		while(level_search(root, level, result, data)){
+			level++;
+		}
+		for(int i=0;i<result.size();i++){
+			if(result[i]=='#'){
+				idx=i+1;
+				break;
+			}
+		}
+		return idx;
+	}
 }
 
 // Number function
